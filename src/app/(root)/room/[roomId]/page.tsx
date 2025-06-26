@@ -5,19 +5,24 @@ import { useParams } from 'next/navigation';
 import { io, Socket } from 'socket.io-client';
 import { IPlayer } from "@/app/lib/types/types";
 import DarkThemeSwitch from "@/app/components/dark-theme-switch";
+import { useRoomStore } from "@/app/lib/store/useRoomStore";
 
 export default function RoomPage() {
   const { roomId } = useParams();
-  const [players, setPlayers] = useState<IPlayer[]>([]);
-  const [name, setName] = useState('');
-  const [selected, setSelected] = useState('');
-  const [average, setAverage] = useState<number | null>(null);
   const socketRef = useRef<Socket | null>(null);
-  const cards: string[] = ['1', '2', '3', '5', '8', '13', '21', '?'];
+  const cards = ['1', '2', '3', '5', '8', '13', '21', '?'];
   const [showEditName, setShowEditName] = useState(false);
-  const [countdown, setCountdown] = useState<number | null>(null);
+
+  const {
+    players, name, selected, average, countdown,
+    setName, setPlayers, setSelected, setAverage,
+    setCountdown, setRoomId
+  } = useRoomStore();
 
   useEffect(() => {
+    if (!roomId || typeof roomId !== 'string') return;
+    setRoomId(roomId);
+
     const savedName = localStorage.getItem('poker_name') || '';
     setName(savedName);
 
@@ -53,12 +58,12 @@ export default function RoomPage() {
     if (countdown === null) return;
 
     if (countdown === 0) {
-      setCountdown(null); // остановка
+      setCountdown(null);
       return;
     }
 
     const timer = setTimeout(() => {
-      setCountdown(prev => (prev !== null ? prev - 1 : null));
+      setCountdown((countdown ?? 0) - 1);
     }, 1000);
 
     return () => clearTimeout(timer);
@@ -184,7 +189,5 @@ export default function RoomPage() {
         </button>
       </div>
     </div>
-
-
   );
 }
