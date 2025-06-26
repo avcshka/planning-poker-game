@@ -7,6 +7,7 @@
 
 <p>Each player picks a number to represent how hard the task is. When everyone has voted, a short countdown starts, and at the end, the average score is shown.
 If the average score is 21 or higher, the task should be split into smaller and simpler ones.<p>
+  
 ---
 
 Implementation of a technical task: real-time Planning Poker built with::
@@ -65,7 +66,6 @@ disconnect — triggered automatically when a user leaves
 /server
 ```
 
----
 ![Screenshot_3](https://github.com/user-attachments/assets/6583089f-f734-4558-9c99-53c3e4597d35)
 
 ![Screenshot_4](https://github.com/user-attachments/assets/41dc1103-6c10-46e1-b82b-3765c98f3156)
