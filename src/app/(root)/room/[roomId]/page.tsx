@@ -177,6 +177,7 @@ export default function RoomPage() {
       <div className="flex gap-2 pt-5 justify-center">
         <button
           onClick={ showVotes }
+          disabled={!!countdown}
           className="bg-white shadow-2xl hover:bg-green-200 dark:bg-gray-800 dark:hover:bg-green-700 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
         >
           Show Votes
