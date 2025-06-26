@@ -1,4 +1,13 @@
-# Planning Poker — Next.js + WebSocket + Drizzle + Tailwind
+# Planning Poker — Next.js + WebSocket + Tailwind
+
+
+## Description
+
+**Planning Poker** is a simple game that helps teams estimate the difficulty of tasks during sprint planning.
+
+Each player picks a number to represent how hard the task is. When everyone has voted, a short countdown starts, and at the end, the average score is shown.
+If the average score is 21 or higher, the task should be split into smaller and simpler ones.
+---
 
 Implementation of a technical task: real-time Planning Poker built with::
 
@@ -54,3 +63,6 @@ disconnect — triggered automatically when a user leaves
       /types
   /components
 /server
+```
+
+---
