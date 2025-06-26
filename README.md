@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Planning Poker — Next.js + WebSocket + Drizzle + Tailwind
 
-## Getting Started
+Implementation of a technical task: real-time Planning Poker built with::
 
-First, run the development server:
+- **Next.js (App Router)**
+- **TailwindCSS** - for styling
+- **Zustand** - for state management
+- **Socket.io** - for synchronization
+- **Next.theme** - for dark theme
+- **Uuid** - for ID generation
 
-```bash
+---
+
+## Project Setup
+
+```
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## WebSocket Events
+- `name` — set player name after joining a room
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `vote` — send a vote for the current ticket
 
-## Learn More
+- `show` — reveal all votes when everyone has voted
 
-To learn more about Next.js, take a look at the following resources:
+- `restart` — reset all votes and start next voting round
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+disconnect — triggered automatically when a user leaves
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Testing
+- Open /lobby
+- Enter your name and join
+- Open the same room in another tab
+- Cast votes from both tabs
+- Check synchronization and `Reset`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Structure
+```
+/src
+  /app
+    /(root)
+      /lobby
+      /room/[roomId]
+    /lib
+      /store
+      /types
+  /components
+/server
