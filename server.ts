@@ -103,11 +103,6 @@ nextApp.prepare().then(() => {
 
       updateClientsInRoom(roomId);
     });
-
-    socket.on('pong', () => {
-      const player = players.find(p => p.id === socket.id);
-      // keep the connection alive
-    });
   });
 
   function updateClientsInRoom(roomId: string | string[]) {
