@@ -36,7 +36,6 @@ npm run dev
 
 disconnect — triggered automatically when a user leaves
 
----
 
 ## Testing
 - Open /lobby
