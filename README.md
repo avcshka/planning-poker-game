@@ -18,16 +18,12 @@ Implementation of a technical task: real-time Planning Poker built with::
 - **Next.theme** - for dark theme
 - **Uuid** - for ID generation
 
----
-
 ## Project Setup
 
 ```
 npm install
 npm run dev
 ```
-
----
 
 ## WebSocket Events
 - `name` — set player name after joining a room
@@ -48,8 +44,6 @@ disconnect — triggered automatically when a user leaves
 - Open the same room in another tab
 - Cast votes from both tabs
 - Check synchronization and `Reset`
-
----
 
 ## Structure
 ```
