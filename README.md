@@ -1,6 +1,5 @@
 # Planning Poker — Next.js + WebSocket + Tailwind
 
-
 ## Description
 
 **Planning Poker** is a simple game that helps teams estimate the difficulty of tasks during sprint planning.
