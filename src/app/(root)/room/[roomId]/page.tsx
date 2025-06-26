@@ -10,7 +10,7 @@ import { useRoomStore } from "@/app/lib/store/useRoomStore";
 export default function RoomPage() {
   const { roomId } = useParams();
   const socketRef = useRef<Socket | null>(null);
-  const cards = ['1', '2', '3', '5', '8', '13', '21', '?'];
+  const cards: string[] = ['1', '2', '3', '5', '8', '13', '21', '?'];
   const [showEditName, setShowEditName] = useState(false);
 
   const {
@@ -23,7 +23,7 @@ export default function RoomPage() {
     if (!roomId || typeof roomId !== 'string') return;
     setRoomId(roomId);
 
-    const savedName = localStorage.getItem('poker_name') || '';
+    const savedName: string = sessionStorage.getItem('poker_name') || '';
     setName(savedName);
 
     const socket = io('http://localhost:3000', {
@@ -85,7 +85,7 @@ export default function RoomPage() {
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
     setName(newName);
-    localStorage.setItem('poker_name', newName);
+    sessionStorage.setItem('poker_name', newName);
     socketRef.current?.emit('name', newName);
   };
 

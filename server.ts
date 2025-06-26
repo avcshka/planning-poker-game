@@ -48,7 +48,7 @@ nextApp.prepare().then(() => {
     players.push({ id: socket.id, name: '', roomId: roomId });
 
     socket.on('name', (name) => {
-      const player = players.find(p => p.id === socket.id);
+      const player: IPlayer | undefined = players.find((p: IPlayer) => p.id === socket.id);
       console.log("User entered name: ", name);
 
       if (player) {
@@ -58,13 +58,13 @@ nextApp.prepare().then(() => {
     })
 
     socket.on('vote', (vote) => {
-      const player: IPlayer | undefined = players.find(p => p.id === socket.id);
+      const player: IPlayer | undefined = players.find((p: IPlayer) => p.id === socket.id);
       if (player) {
         player.vote = vote;
       }
       console.log(`Player ${ player?.name } voted ${ player?.vote }`);
 
-      const playersInRoom: IPlayer[] = players.filter(p => p.roomId === roomId);
+      const playersInRoom: IPlayer[] = players.filter((p: IPlayer) => p.roomId === roomId);
       if (playersInRoom.every((p: IPlayer) => p.vote)) {
         showVotes(roomId);
       }
@@ -94,9 +94,8 @@ nextApp.prepare().then(() => {
       updateClientsInRoom(roomId);
     });
 
-    // тут исправил с filter на find
     socket.on('disconnect', () => {
-      const player: IPlayer | undefined = players.find(p => p.id === socket.id);
+      const player: IPlayer | undefined = players.find((p: IPlayer) => p.id === socket.id);
       console.log(`Player ${ player?.name } disconnected`);
 
       players = players.filter((p: IPlayer) => p.id !== socket.id);
@@ -121,7 +120,7 @@ nextApp.prepare().then(() => {
   }
 
   function getAverage(roomId: string | string[]) {
-    const roomPlayers: IPlayer[] = players.filter(p => p.roomId === roomId);
+    const roomPlayers: IPlayer[] = players.filter((p: IPlayer) => p.roomId === roomId);
 
     let count: number = 0;
     let total: number = 0;

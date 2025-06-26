@@ -14,14 +14,10 @@ export default function LobbyPage() {
 
   const socketRef = useRef<Socket | null>(null);
 
-
   useEffect(() => {
     if (clickedStart) {
       const timer = setTimeout(() => {
         if (!hasStarted) {
-          alert(
-            'Unable to connect to the server. Please check your internet connection or try again later.'
-          );
           setClickedStart(false);
         }
       }, 8000);
@@ -39,7 +35,7 @@ export default function LobbyPage() {
     if (!socketRef.current) {
       socketRef.current = io("http://localhost:3000");
 
-      localStorage.setItem('poker_name', name);
+      sessionStorage.setItem('poker_name', name);
       socketRef.current.emit("name", name);
 
       socketRef.current.on("room", (roomId: string) => {
