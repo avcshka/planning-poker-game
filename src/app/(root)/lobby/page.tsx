@@ -33,7 +33,7 @@ export default function LobbyPage() {
 
   const registerSocket = () => {
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:3000");
+      socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL || '');
 
       sessionStorage.setItem('poker_name', name);
       socketRef.current.emit("name", name);
