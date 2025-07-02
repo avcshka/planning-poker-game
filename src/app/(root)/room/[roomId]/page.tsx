@@ -1,18 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { io, Socket } from 'socket.io-client';
-import { IPlayer } from "@/app/lib/types/types";
 import DarkThemeSwitch from "@/app/components/dark-theme-switch";
 import { useRoomStore } from "@/app/lib/store/useRoomStore";
+import { useDebounce } from "@/app/lib/hooks/useDebounce";
+import { useSocket } from "@/app/lib/hooks/useSocket";
 
 export default function RoomPage() {
   const { roomId } = useParams();
-  const socketRef = useRef<Socket | null>(null);
   const cards: string[] = ['1', '2', '3', '5', '8', '13', '21', '?'];
   const [showEditName, setShowEditName] = useState(false);
-
   const {
     players, name, selected, average, countdown,
     setName, setPlayers, setSelected, setAverage,
@@ -23,36 +21,27 @@ export default function RoomPage() {
     if (!roomId || typeof roomId !== 'string') return;
     setRoomId(roomId);
 
-    const savedName: string = sessionStorage.getItem('poker_name') || '';
-    setName(savedName);
-
-    const socket = io('http://localhost:3000', {
-      query: { roomId },
-    });
-
-    socketRef.current = socket;
-
-    socket.emit('name', savedName);
-
-    socket.on('update', ({ players }: { players: IPlayer[] }) => {
-      setPlayers(players);
-    });
-
-    socket.on('restart', () => {
-      setSelected('');
-      setAverage(null);
-      setCountdown(null);
-    });
-
-    socket.on('show', ({ average }: { average: number }) => {
-      setAverage(average);
-      setCountdown(3);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+    const playerName: string = sessionStorage.getItem('poker_name') || '';
+    setName(playerName);
   }, [roomId]);
+
+  const debouncedName: string = useDebounce(name);
+
+  const socketRef = useSocket({
+    roomId: typeof roomId === 'string' ? roomId : '',
+    savedName: debouncedName,
+    setSelected,
+    setAverage,
+    setPlayers,
+    setCountdown
+  })
+
+  useEffect(() => {
+    if(!!debouncedName) {
+      sessionStorage.setItem('poker_name', debouncedName);
+      socketRef.current?.emit('name', debouncedName);
+    }
+  }, [debouncedName]);
 
   useEffect(() => {
     if (countdown === null) return;
@@ -82,12 +71,9 @@ export default function RoomPage() {
     socketRef.current?.emit('show');
   };
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newName = e.target.value;
-    setName(newName);
-    sessionStorage.setItem('poker_name', newName);
-    socketRef.current?.emit('name', newName);
-  };
+  const handleChangeName = (e: ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  }
 
   return (
     <div
@@ -123,7 +109,7 @@ export default function RoomPage() {
             className="mt-2 w-full border border-gray-200 bg-white text-black outline-none shadow-2xl p-2 rounded dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:shadow-lg transition-colors duration-300 placeholder-gray-500 dark:placeholder-gray-400"
             placeholder="Enter your name"
             value={ name }
-            onChange={ handleNameChange }
+            onChange={ handleChangeName }
           />
         ) }
       </div>
@@ -177,7 +163,7 @@ export default function RoomPage() {
       <div className="flex gap-2 pt-5 justify-center">
         <button
           onClick={ showVotes }
-          disabled={!!countdown}
+          disabled={ !!countdown }
           className="bg-white shadow-2xl hover:bg-green-200 dark:bg-gray-800 dark:hover:bg-green-700 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
         >
           Show Votes
