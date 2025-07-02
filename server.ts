@@ -17,7 +17,7 @@ interface ITicket {
 }
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "localhost";
+const hostname = "planning-poker-game-production";
 const port = 3000;
 const nextApp = next({ dev, hostname, port })
 const handler = nextApp.getRequestHandler();
