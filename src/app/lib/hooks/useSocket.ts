@@ -22,7 +22,7 @@ export const useSocket = ({
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-    const socket = io('http://localhost:3000', {
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || '', {
       query: { roomId },
     });
 
