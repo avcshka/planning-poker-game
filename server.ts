@@ -10,12 +10,6 @@ interface IPlayer {
   vote?: string;
 }
 
-interface ITicket {
-  roomId: string;
-  votingOn?: boolean;
-  score?: number;
-}
-
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
 const port = parseInt(process.env.PORT || "3000");
@@ -23,7 +17,6 @@ const nextApp = next({ dev, hostname, port })
 const handler = nextApp.getRequestHandler();
 
 let players: IPlayer[] = [];
-let tickets: ITicket[] = [];
 
 nextApp.prepare().then(() => {
   const httpServer = createServer(handler);
@@ -44,7 +37,6 @@ nextApp.prepare().then(() => {
       socket.emit("room", roomId);
     }
     socket.join(roomId);
-
 
     socket.on('name', (name) => {
       const player: IPlayer | undefined = players.find((p: IPlayer) => p.id === socket.id);
@@ -80,20 +72,6 @@ nextApp.prepare().then(() => {
       restartGame(roomId);
     });
 
-    socket.on('ticket', (updatedTickets) => {
-      tickets = tickets.filter((t: ITicket) => t.roomId !== roomId);
-
-      for (const ticket of updatedTickets) {
-        ticket.roomId = roomId;
-      }
-      if (updatedTickets.lenght === 1) {
-        updatedTickets[0].votingOn = true;
-      }
-
-      tickets.push(...updatedTickets);
-      updateClientsInRoom(roomId);
-    });
-
     socket.on('disconnect', () => {
       const player: IPlayer | undefined = players.find((p: IPlayer) => p.id === socket.id);
       console.log(`Player ${ player?.name } disconnected`);
@@ -106,11 +84,9 @@ nextApp.prepare().then(() => {
 
   function updateClientsInRoom(roomId: string | string[]) {
     const roomPlayers: IPlayer[] = players.filter((p: IPlayer) => p.roomId === roomId);
-    const roomTickets: ITicket[] = tickets.filter((t: ITicket) => t.roomId === roomId);
 
     io.to(roomId).emit('update', {
       players: roomPlayers,
-      tickets: roomTickets
     })
   }
 
@@ -143,27 +119,15 @@ nextApp.prepare().then(() => {
 
   function restartGame(roomId: string | string[]) {
     const roomPlayers: IPlayer[] = players.filter((p: IPlayer) => p.roomId === roomId);
-    const roomTickets: ITicket[] = tickets.filter((t: ITicket) => t.roomId === roomId);
 
     roomPlayers.forEach((p: IPlayer) => {
       p.vote = undefined;
     });
 
-    const ticketVotingOn: ITicket | undefined = roomTickets.find((roomT: ITicket) => roomT.votingOn);
-    if (!(ticketVotingOn && !ticketVotingOn.score)) {
-      roomTickets.forEach((t: ITicket) => t.votingOn = false);
-
-      const ticketToVoteOn: ITicket | undefined = roomTickets.find((roomT: ITicket) => !roomT.score);
-      if (ticketToVoteOn) {
-        ticketToVoteOn.votingOn = true;
-      }
-    }
-
     console.log(`Restarted game with Players: ${ roomPlayers.map(p => p.name).join(", ") }`);
     io.to(roomId).emit('restart');
     io.to(roomId).emit('update', {
       players: roomPlayers,
-      tickets: roomTickets,
     });
   }
 
