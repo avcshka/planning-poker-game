@@ -45,13 +45,15 @@ nextApp.prepare().then(() => {
     }
     socket.join(roomId);
 
+    players.push({ id: socket.id, name: '', roomId: roomId });
+
     socket.on('name', (name) => {
-      const alreadyExist: IPlayer | undefined = players.find((p: IPlayer) => p.id === socket.id)
+      const player: IPlayer | undefined = players.find((p: IPlayer) => p.id === socket.id);
+      console.log("User entered name: ", name);
 
-      if (!alreadyExist) {
-        players.push({ id: socket.id, name, roomId });
+      if (player) {
+        player.name = name;
       }
-
       updateClientsInRoom(roomId);
     })
 
@@ -143,21 +145,19 @@ nextApp.prepare().then(() => {
     const roomPlayers: IPlayer[] = players.filter((p: IPlayer) => p.roomId === roomId);
     const roomTickets: ITicket[] = tickets.filter((t: ITicket) => t.roomId === roomId);
 
-    roomPlayers.forEach((p: IPlayer) => {
-      p.vote = undefined;
-    });
+    roomPlayers.forEach((p: IPlayer) => { p.vote = undefined; });
 
     const ticketVotingOn: ITicket | undefined = roomTickets.find((roomT: ITicket) => roomT.votingOn);
-    if (!(ticketVotingOn && !ticketVotingOn.score)) {
+    if(!(ticketVotingOn && !ticketVotingOn.score)) {
       roomTickets.forEach((t: ITicket) => t.votingOn = false);
 
       const ticketToVoteOn: ITicket | undefined = roomTickets.find((roomT: ITicket) => !roomT.score);
-      if (ticketToVoteOn) {
+      if(ticketToVoteOn) {
         ticketToVoteOn.votingOn = true;
       }
     }
 
-    console.log(`Restarted game with Players: ${ roomPlayers.map(p => p.name).join(", ") }`);
+    console.log(`Restarted game with Players: ${roomPlayers.map(p => p.name).join(", ")}`);
     io.to(roomId).emit('restart');
     io.to(roomId).emit('update', {
       players: roomPlayers,
@@ -168,17 +168,11 @@ nextApp.prepare().then(() => {
   function logRooms() {
     const rooms: (string | string[])[] = players.map((p: IPlayer) => p.roomId);
 
-    if (rooms) {
-      for (const room of rooms.filter((val: string | string[], i: number, arr: (string | string[])[]) => {
-        console.log('val', val)
-        console.log('id', i)
-        console.log('arr', arr)
-        return arr.indexOf(val) === i
-      })) {
-
+    if(rooms) {
+      for (const room of rooms.filter((val: string | string[], i: number, arr: (string | string[])[]) => arr.indexOf(val) === i)) {
         const playersInRoom: string[] = players.filter((p: IPlayer) => p.roomId === room).map((p: IPlayer) => p.name);
 
-        console.log(`Room: ${ room } - Players: ${ playersInRoom.join(", ") }`);
+        console.log(`Room: ${room} - Players: ${playersInRoom.join(", ")}`);
       }
     }
   }
