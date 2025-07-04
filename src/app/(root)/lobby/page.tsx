@@ -36,7 +36,6 @@ export default function LobbyPage() {
       socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL || '');
 
       sessionStorage.setItem('poker_name', name);
-      socketRef.current.emit("name", name);
 
       socketRef.current.on("room", (roomId: string) => {
         setHasStarted(true);
