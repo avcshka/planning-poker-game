@@ -34,7 +34,7 @@ nextApp.prepare().then(() => {
     let roomId: string | string[] | undefined = socket.handshake.query['roomId'];
     if (!roomId) {
       roomId = uuidv4();
-      socket.emit("room", roomId);
+      socket.emit('room', roomId);
     }
     socket.join(roomId);
 
@@ -46,7 +46,8 @@ nextApp.prepare().then(() => {
         players.push({ id: socket.id, name, roomId });
       }
 
-      updateClientsInRoom(roomId);
+      updatePlayersInRoom(roomId);
+      restartGame(roomId);
     })
 
     socket.on('vote', (vote) => {
@@ -61,7 +62,7 @@ nextApp.prepare().then(() => {
         showVotes(roomId);
       }
 
-      updateClientsInRoom(roomId);
+      updatePlayersInRoom(roomId);
     });
 
     socket.on('show', () => {
@@ -78,20 +79,20 @@ nextApp.prepare().then(() => {
 
       players = players.filter((p: IPlayer) => p.id !== socket.id);
 
-      updateClientsInRoom(roomId);
+      updatePlayersInRoom(roomId);
     });
   });
 
-  function updateClientsInRoom(roomId: string | string[]) {
-    const roomPlayers: IPlayer[] = players.filter((p: IPlayer) => p.roomId === roomId);
+  function updatePlayersInRoom(roomId: string | string[]) {
+    const playersInRoom: IPlayer[] = players.filter((p: IPlayer) => p.roomId === roomId);
 
     io.to(roomId).emit('update', {
-      players: roomPlayers,
+      players: playersInRoom,
     })
   }
 
   function showVotes(roomId: string | string[]) {
-    const average = Math.round(getAverage(roomId))
+    const average = getAverage(roomId);
     io.to(roomId).emit('show', { average: average });
   }
 
@@ -103,18 +104,14 @@ nextApp.prepare().then(() => {
 
     for (const player of roomPlayers) {
       if (player.vote && player.vote !== "?") {
-        const index = 0;
-        let numberValue: number = Number(player.vote);
-        if (isNaN(numberValue)) {
-          numberValue = index;
-        }
+        const numberValue: number = Number(player.vote);
 
-        total += parseInt(String(numberValue));
+        total += numberValue;
         count++;
       }
     }
 
-    return total / count;
+    return  count > 0 ? Math.floor(total / count) : 0;
   }
 
   function restartGame(roomId: string | string[]) {
@@ -132,19 +129,21 @@ nextApp.prepare().then(() => {
   }
 
   function logRooms() {
-    const rooms: (string | string[])[] = players.map((p: IPlayer) => p.roomId);
+    const allRoomsId: (string | string[])[] = players.map((p: IPlayer) => p.roomId);
+    const uniqueRoomsId = allRoomsId.filter((roomId: string | string[], i: number, allRoomsId: (string | string[])[]) => allRoomsId.indexOf(roomId) === i);
 
-    if (rooms) {
-      for (const room of rooms.filter((val: string | string[], i: number, arr: (string | string[])[]) => arr.indexOf(val) === i)) {
-        const playersInRoom: string[] = players.filter((p: IPlayer) => p.roomId === room).map((p: IPlayer) => p.name);
+    if (allRoomsId) {
+      for (const roomId of uniqueRoomsId) {
+        const playersInRoom = players.filter((p: IPlayer) => p.roomId === roomId);
+        const playerNames = playersInRoom.map((p: IPlayer) => p.name);
 
-        console.log(`Room: ${ room } - Players: ${ playersInRoom.join(", ") }`);
+        console.log(`Room: ${ roomId } - Players: ${ playerNames.join(", ") }`);
       }
     }
   }
 
   httpServer.listen(3000);
-  console.log('Server listening on port 3000');
+  console.log(`Server listening on port ${port}`);
 })
 
 
