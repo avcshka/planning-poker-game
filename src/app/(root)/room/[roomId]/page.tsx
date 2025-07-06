@@ -11,6 +11,7 @@ export default function RoomPage() {
   const { roomId } = useParams();
   const cards: string[] = ['1', '2', '3', '5', '8', '13', '21', '?'];
   const [showEditName, setShowEditName] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState<{ name: string, message: string }[]>([]);
 
@@ -90,26 +91,41 @@ export default function RoomPage() {
     setName(e.target.value);
   }
 
+  const handleCopy = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 3000);
+  };
+
   return (
     <div
-      className="grid grid-cols-3 max-w-6xl mx-auto mt-10 p-6 bg-blue-200 shadow-md rounded-xl border border-blue-200 dark:border-gray-500 dark:bg-gray-900 dark:shadow-lg transition-colors duration-300">
+      className="grid grid-cols-3 max-w-6xl mx-auto mt-10 p-6 bg-[#F6F6F6] shadow-md rounded-2xl border-2 dark:border-gray-500 dark:bg-gray-900 dark:shadow-lg transition-colors duration-300">
       <div className="gap-10 col-span-2">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-black dark:text-white">Room</h1>
 
           <div className="flex gap-2">
-            <button
-              className="shadow-2xl bg-white py-2 px-3 rounded-md hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:shadow-lg transition-colors duration-200"
-              onClick={ () => {
-                const url: string = window.location.href;
-                navigator.clipboard.writeText(url);
-              } }
-            >
-              <img src="/svg/copy.svg" alt="Copy link" className="w-5 h-5 dark:invert"/>
-            </button>
+            <div className="relative">
+              <button
+                className=" bg-white py-2 px-3 rounded-md hover:bg-blue-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:shadow-lg transition-colors duration-200"
+                onClick={ handleCopy }
+              >
+                <img src="/svg/copy.svg" alt="Copy link" className="w-5 h-5 dark:invert"/>
+              </button>
+
+              { copied && (
+                <span className="absolute -top-9 left-1/2 -translate-x-1/2 px-2 py-1 text-xs bg-white rounded shadow dark:bg-blue-600 transition-opacity duration-300">
+          Copied!
+        </span>
+              ) }
+            </div>
 
             <button
-              className="shadow-2xl bg-white py-2 px-3 rounded-md hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:shadow-lg transition-colors duration-200"
+              className="bg-white py-2 px-3 rounded-md hover:bg-blue-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:shadow-lg transition-colors duration-200"
               onClick={ () => setShowEditName(!showEditName) }
             >
               <img src="/svg/edit.svg" alt="Edit" className="w-5 h-5 dark:invert"/>
@@ -121,7 +137,7 @@ export default function RoomPage() {
 
         { !showEditName && (
           <input
-            className="w-full mt-2 p-2 border border-gray-300 bg-white outline-none shadow-md rounded-lg focud:border-blue-400 focus:ring focus:ring-blue-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-lg transition-color duration-300"
+            className="w-full mt-3 p-2 border bg-white outline-none shadow-md rounded-lg focud:border-blue-400 focus:ring focus:ring-blue-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-lg transition-color duration-300"
             placeholder="Enter your name"
             value={ name }
             onChange={ handleChangeName }
@@ -156,12 +172,11 @@ export default function RoomPage() {
           { cards.map((card) => (
             <button
               key={ card }
-              className={ `px-4 py-2 rounded-2xl shadow-2xl transition-all duration-200 hover:scale-105 
+              className={ `px-4 py-2 rounded-2xl shadow-2xl transition-all duration-200 hover:bg-blue-100 hover:scale-105 
               ${ selected === card
                 ? "bg-blue-500 text-white dark:bg-blue-600"
                 : "bg-white text-black dark:bg-gray-800 dark:text-gray-300"
-              }`
-              }
+              }`}
               onClick={ () => vote(card) }
             >
               { card }
@@ -181,13 +196,13 @@ export default function RoomPage() {
           <button
             onClick={ showVotes }
             disabled={ !!countdown }
-            className="bg-white shadow-2xl hover:bg-green-200 dark:bg-gray-800 dark:hover:bg-green-700 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
+            className="bg-white shadow-xl hover:bg-green-200 dark:bg-gray-800 dark:hover:bg-green-700 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
           >
             Show Votes
           </button>
           <button
             onClick={ restart }
-            className="bg-white shadow-2xl hover:bg-yellow-200 dark:bg-gray-800 dark:hover:bg-yellow-600 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
+            className="bg-white shadow-xl hover:bg-yellow-200 dark:bg-gray-800 dark:hover:bg-yellow-600 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
           >
             Restart
           </button>
@@ -200,7 +215,7 @@ export default function RoomPage() {
           className=" h-80 overflow-y-auto bg-white p-2 rounded-lg border dark:bg-gray-800 dark:border-gray-500 dark:text-white">
           { chat.map((m, index) => (
             <div key={ index }>
-              <strong className="text-blue-900">{ m.name }:</strong> { m.message }
+              <strong className="text-blue-800 dark:text-blue-400">{ m.name }:</strong> { m.message }
             </div>
           )) }
         </div>
@@ -210,14 +225,14 @@ export default function RoomPage() {
             value={ message }
             onChange={ (e) => setMessage(e.target.value) }
             placeholder="Type a message..."
-            className="w-full p-2 border border-gray-300 bg-white outline-none shadow-sm rounded-lg focus:border-blue-400 focus:ring focus:ring-blue-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-lg transition-color duration-300"
+            className="w-full p-2 border border-gray-50 bg-white outline-none shadow-md rounded-lg focus:border-blue-400 focus:ring focus:ring-blue-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-lg transition-color duration-300"
             onKeyDown={ (e) => e.key === "Enter" && sendMessage() }
           />
           <button
             onClick={ () => {
               sendMessage();
             } }
-            className="mt-8 bg-white shadow-2xl hover:bg-blue-300 dark:hover:bg-blue-600 dark:bg-gray-800 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
+            className="w-full mt-9 bg-white shadow-xl hover:bg-blue-200 dark:hover:bg-blue-600 dark:bg-gray-800 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
           >
             Send
           </button>
