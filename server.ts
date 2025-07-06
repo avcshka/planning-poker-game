@@ -10,6 +10,8 @@ interface IPlayer {
   vote?: string;
 }
 
+type TRoomId = string | string[];
+
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
 const port = parseInt(process.env.PORT || "3000");
@@ -31,7 +33,7 @@ nextApp.prepare().then(() => {
   io.on('connection', (socket: Socket) => {
     console.log("A user connected", socket.id);
 
-    let roomId: string | string[] | undefined = socket.handshake.query['roomId'];
+    let roomId: TRoomId | undefined = socket.handshake.query['roomId'];
     if (!roomId) {
       roomId = uuidv4();
       socket.emit('room', roomId);
@@ -69,6 +71,11 @@ nextApp.prepare().then(() => {
       showVotes(roomId);
     });
 
+    socket.on('send_message', ({message, name}) => {
+      console.log("message + name", message, name)
+      receiveMessages(roomId, message, name);
+    })
+
     socket.on('restart', () => {
       restartGame(roomId);
     });
@@ -83,7 +90,7 @@ nextApp.prepare().then(() => {
     });
   });
 
-  function updatePlayersInRoom(roomId: string | string[]) {
+  function updatePlayersInRoom(roomId: TRoomId) {
     const playersInRoom: IPlayer[] = players.filter((p: IPlayer) => p.roomId === roomId);
 
     io.to(roomId).emit('update', {
@@ -91,12 +98,16 @@ nextApp.prepare().then(() => {
     })
   }
 
-  function showVotes(roomId: string | string[]) {
+  function receiveMessages(roomId: TRoomId, message: string, name: string) {
+    io.to(roomId).emit('receive_message', {message, name});
+  }
+
+  function showVotes(roomId: TRoomId) {
     const average = getAverage(roomId);
     io.to(roomId).emit('show', { average: average });
   }
 
-  function getAverage(roomId: string | string[]) {
+  function getAverage(roomId: TRoomId) {
     const roomPlayers: IPlayer[] = players.filter((p: IPlayer) => p.roomId === roomId);
 
     let count: number = 0;
@@ -114,7 +125,7 @@ nextApp.prepare().then(() => {
     return  count > 0 ? Math.floor(total / count) : 0;
   }
 
-  function restartGame(roomId: string | string[]) {
+  function restartGame(roomId: TRoomId) {
     const roomPlayers: IPlayer[] = players.filter((p: IPlayer) => p.roomId === roomId);
 
     roomPlayers.forEach((p: IPlayer) => {
@@ -129,8 +140,8 @@ nextApp.prepare().then(() => {
   }
 
   function logRooms() {
-    const allRoomsId: (string | string[])[] = players.map((p: IPlayer) => p.roomId);
-    const uniqueRoomsId = allRoomsId.filter((roomId: string | string[], i: number, allRoomsId: (string | string[])[]) => allRoomsId.indexOf(roomId) === i);
+    const allRoomsId: (TRoomId)[] = players.map((p: IPlayer) => p.roomId);
+    const uniqueRoomsId = allRoomsId.filter((roomId: TRoomId, i: number, allRoomsId: (TRoomId)[]) => allRoomsId.indexOf(roomId) === i);
 
     if (allRoomsId) {
       for (const roomId of uniqueRoomsId) {
