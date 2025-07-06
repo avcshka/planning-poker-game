@@ -11,9 +11,6 @@ export default function RoomPage() {
   const { roomId } = useParams();
   const cards: string[] = ['1', '2', '3', '5', '8', '13', '21', '?'];
   const [showEditName, setShowEditName] = useState(false);
-  const [message, setMessage] = useState<string>('');
-  const [chat, setChat] = useState<{ name: string, message: string }[]>([]);
-
   const {
     players, name, selected, average, countdown,
     setName, setPlayers, setSelected, setAverage,
@@ -40,20 +37,11 @@ export default function RoomPage() {
   })
 
   useEffect(() => {
-    if (!!debouncedName) {
+    if(!!debouncedName) {
       sessionStorage.setItem('poker_name', debouncedName);
       socketRef.current?.emit('name', debouncedName);
     }
   }, [debouncedName]);
-
-  useEffect(() => {
-    socketRef.current?.on("receive_message", (msg) => {
-      console.log("msg", msg)
-      setChat(prev => [...prev, msg]);
-    });
-  }, [debouncedName]);
-
-  console.log("chat", chat)
 
   useEffect(() => {
     if (countdown === null) return;
@@ -83,21 +71,14 @@ export default function RoomPage() {
     socketRef.current?.emit('show');
   };
 
-  const sendMessage = () => {
-    const msgData = { name, message };
-    console.log("msgData", msgData);
-    socketRef.current?.emit('send_message', msgData);
-    setMessage('');
-  }
-
   const handleChangeName = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   }
 
   return (
     <div
-      className="grid grid-cols-3 max-w-6xl mx-auto mt-10 p-6 bg-gray-100 shadow-md rounded-xl border dark:border-gray-500 dark:bg-gray-900 dark:shadow-lg transition-colors duration-300">
-      <div className="gap-10 col-span-2">
+      className="max-w-4xl mx-auto mt-10 p-6 bg-gray-100 shadow-md rounded-xl border dark:border-gray-500 dark:bg-gray-900 dark:shadow-lg transition-colors duration-300">
+      <div className="mb-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-black dark:text-white">Room</h1>
 
@@ -131,97 +112,68 @@ export default function RoomPage() {
             onChange={ handleChangeName }
           />
         ) }
-
-        <div className="flex items-center justify-center flex-row gap-6">
-          { players.map((player, index) => {
-            const allVoted = players.length > 0 && players.every((p) => p.vote && p.vote !== "");
-            const showVote = allVoted && countdown === null;
-
-            return (
-              <div key={ index } className="flex flex-col items-center justify-center">
-                <div
-                  className={ `flex text-2xl my-4 items-center h-[120px] w-[60px] rounded-2xl shadow-2xl transition-colors duration-300 ${
-                    showVote && player.vote
-                      ? "bg-blue-500 text-white dark:bg-blue-600"
-                      : "bg-white text-black dark:bg-gray-800 dark:text-gray-300"
-                  }` }
-                >
-                  <span className="mx-auto">{ showVote ? player.vote : "" }</span>
-                </div>
-                <div className="my-3">
-                  <h2 className="text-xl font-medium text-black dark:text-white">{ player.name }</h2>
-                </div>
-              </div>
-            );
-          }) }
-        </div>
-
-        <div className="grid grid-cols-4 gap-2 mb-4">
-          { cards.map((card) => (
-            <button
-              key={ card }
-              className={ `px-4 py-2 rounded-2xl shadow-2xl transition-colors duration-200 ${
-                selected === card ? "bg-blue-500 text-white dark:bg-blue-600" : "bg-white text-black dark:bg-gray-800 dark:text-gray-300"
-              } hover:bg-blue-200 dark:hover:bg-blue-700` }
-              onClick={ () => vote(card) }
-            >
-              { card }
-            </button>
-          )) }
-        </div>
-
-        { countdown !== null && (
-          <div className="text-center text-2xl font-bold mb-4 text-black dark:text-white">{ countdown }</div>
-        ) }
-
-        { countdown === null && average !== null && (
-          <p className="text-center font-semibold mb-4 text-black dark:text-white">Average Vote: { average }</p>
-        ) }
-
-        <div className="flex gap-2 pt-5 justify-center">
-          <button
-            onClick={ showVotes }
-            disabled={ !!countdown }
-            className="bg-white shadow-2xl hover:bg-green-200 dark:bg-gray-800 dark:hover:bg-green-700 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
-          >
-            Show Votes
-          </button>
-          <button
-            onClick={ restart }
-            className="bg-white shadow-2xl hover:bg-yellow-200 dark:bg-gray-800 dark:hover:bg-yellow-600 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
-          >
-            Restart
-          </button>
-        </div>
-
       </div>
 
-      <div className='ml-6 col-span-1'>
-        <div className=" h-80 overflow-y-auto bg-white p-2 rounded border dark:bg-gray-800 dark:border-gray-500 dark:text-white">
-          { chat.map((m, index) => (
-            <div key={ index }>
-              <strong>{ m.name }:</strong> { m.message }
-            </div>
-          )) }
-        </div>
+      <div className="flex items-center justify-center flex-row gap-6">
+        { players.map((player, index) => {
+          const allVoted = players.length > 0 && players.every((p) => p.vote && p.vote !== "");
+          const showVote = allVoted && countdown === null;
 
-        <div className="mt-5">
-          <input
-            value={ message }
-            onChange={ (e) => setMessage(e.target.value) }
-            placeholder="Type a message..."
-            className="w-full p-2 border rounded dark:border-gray-500"
-            onKeyDown={ (e) => e.key === "Enter" && sendMessage() }
-          />
+          return (
+            <div key={ index } className="flex flex-col items-center justify-center">
+              <div
+                className={ `flex text-2xl my-4 items-center h-[120px] w-[60px] rounded-2xl shadow-2xl transition-colors duration-300 ${
+                  showVote && player.vote
+                    ? "bg-blue-500 text-white dark:bg-blue-600"
+                    : "bg-white text-black dark:bg-gray-800 dark:text-gray-300"
+                }` }
+              >
+                <span className="mx-auto">{ showVote ? player.vote : "" }</span>
+              </div>
+              <div className="my-3">
+                <h2 className="text-xl font-medium text-black dark:text-white">{ player.name }</h2>
+              </div>
+            </div>
+          );
+        }) }
+      </div>
+
+      <div className="grid grid-cols-4 gap-2 mb-4">
+        { cards.map((card) => (
           <button
-            onClick={ () => {
-              sendMessage();
-            } }
-            className="mt-8 bg-white shadow-2xl hover:bg-blue-300 dark:hover:bg-blue-600 dark:bg-gray-800 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
+            key={ card }
+            className={ `px-4 py-2 rounded-2xl shadow-2xl transition-colors duration-200 ${
+              selected === card ? "bg-blue-500 text-white dark:bg-blue-600" : "bg-white text-black dark:bg-gray-800 dark:text-gray-300"
+            } hover:bg-blue-200 dark:hover:bg-blue-700` }
+            onClick={ () => vote(card) }
           >
-            Send
+            { card }
           </button>
-        </div>
+        )) }
+      </div>
+
+      { countdown !== null && (
+        <div className="text-center text-2xl font-bold mb-4 text-black dark:text-white">{ countdown }</div>
+      ) }
+
+      { countdown === null && average !== null && (
+        <p className="text-center font-semibold mb-4 text-black dark:text-white">Average Vote: { average }</p>
+      ) }
+
+      <div className="flex gap-2 pt-5 justify-center">
+        <button
+          onClick={ showVotes }
+          disabled={ !!countdown }
+          className="bg-white shadow-2xl hover:bg-green-200 dark:bg-gray-800 dark:hover:bg-green-700 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
+        >
+          Show Votes
+        </button>
+        <button
+          onClick={ restart }
+          className="bg-white shadow-2xl hover:bg-yellow-200 dark:bg-gray-800 dark:hover:bg-yellow-600 dark:shadow-lg text-black dark:text-white px-6 py-4 rounded-2xl transition-colors duration-200"
+        >
+          Restart
+        </button>
       </div>
     </div>
   );
