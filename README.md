@@ -58,7 +58,8 @@ disconnect — triggered automatically when a user leaves
 /server
 ```
 
-![Screenshot_3](https://github.com/user-attachments/assets/6583089f-f734-4558-9c99-53c3e4597d35)
+![white_theme_new](https://github.com/user-attachments/assets/bdbd9010-c1cb-4d1d-adc7-64ca44015d62)
 
-![Screenshot_4](https://github.com/user-attachments/assets/41dc1103-6c10-46e1-b82b-3765c98f3156)
+![dark_theme_new](https://github.com/user-attachments/assets/857f5fca-7408-4bb8-afe5-c1518f98d919)
+
 
