@@ -81,7 +81,7 @@ export default function RoomPage() {
   };
 
   const sendMessage = () => {
-    const msgData = {name, message}
+    const msgData = { name, message }
     socketRef.current?.emit('send_message', msgData);
     setMessage('');
   }
@@ -92,7 +92,7 @@ export default function RoomPage() {
 
   return (
     <div
-      className="grid grid-cols-3 max-w-6xl mx-auto mt-10 p-6 bg-gray-100 shadow-md rounded-xl border dark:border-gray-500 dark:bg-gray-900 dark:shadow-lg transition-colors duration-300">
+      className="grid grid-cols-3 max-w-6xl mx-auto mt-10 p-6 bg-blue-200 shadow-md rounded-xl border border-blue-200 dark:border-gray-500 dark:bg-gray-900 dark:shadow-lg transition-colors duration-300">
       <div className="gap-10 col-span-2">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-black dark:text-white">Room</h1>
@@ -121,7 +121,7 @@ export default function RoomPage() {
 
         { !showEditName && (
           <input
-            className="mt-2 w-full border border-gray-200 bg-white text-black outline-none shadow-2xl p-2 rounded dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:shadow-lg transition-colors duration-300 placeholder-gray-500 dark:placeholder-gray-400"
+            className="w-full mt-2 p-2 border border-gray-300 bg-white outline-none shadow-md rounded-lg focud:border-blue-400 focus:ring focus:ring-blue-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-lg transition-color duration-300"
             placeholder="Enter your name"
             value={ name }
             onChange={ handleChangeName }
@@ -136,7 +136,7 @@ export default function RoomPage() {
             return (
               <div key={ index } className="flex flex-col items-center justify-center">
                 <div
-                  className={ `flex text-2xl my-4 items-center h-[120px] w-[60px] rounded-2xl shadow-2xl transition-colors duration-300 ${
+                  className={ `flex text-2xl my-4 items-center h-[120px] w-[60px] rounded-2xl shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg ${
                     showVote && player.vote
                       ? "bg-blue-500 text-white dark:bg-blue-600"
                       : "bg-white text-black dark:bg-gray-800 dark:text-gray-300"
@@ -156,9 +156,12 @@ export default function RoomPage() {
           { cards.map((card) => (
             <button
               key={ card }
-              className={ `px-4 py-2 rounded-2xl shadow-2xl transition-colors duration-200 ${
-                selected === card ? "bg-blue-500 text-white dark:bg-blue-600" : "bg-white text-black dark:bg-gray-800 dark:text-gray-300"
-              } hover:bg-blue-200 dark:hover:bg-blue-700` }
+              className={ `px-4 py-2 rounded-2xl shadow-2xl transition-all duration-200 hover:scale-105 
+              ${ selected === card
+                ? "bg-blue-500 text-white dark:bg-blue-600"
+                : "bg-white text-black dark:bg-gray-800 dark:text-gray-300"
+              }`
+              }
               onClick={ () => vote(card) }
             >
               { card }
@@ -194,10 +197,10 @@ export default function RoomPage() {
 
       <div className='ml-6 col-span-1'>
         <div
-          className=" h-80 overflow-y-auto bg-white p-2 rounded border dark:bg-gray-800 dark:border-gray-500 dark:text-white">
+          className=" h-80 overflow-y-auto bg-white p-2 rounded-lg border dark:bg-gray-800 dark:border-gray-500 dark:text-white">
           { chat.map((m, index) => (
             <div key={ index }>
-              <strong>{ m.name }:</strong> { m.message }
+              <strong className="text-blue-900">{ m.name }:</strong> { m.message }
             </div>
           )) }
         </div>
@@ -207,7 +210,7 @@ export default function RoomPage() {
             value={ message }
             onChange={ (e) => setMessage(e.target.value) }
             placeholder="Type a message..."
-            className="w-full p-2 border rounded dark:border-gray-500"
+            className="w-full p-2 border border-gray-300 bg-white outline-none shadow-sm rounded-lg focus:border-blue-400 focus:ring focus:ring-blue-300 dark:border-gray-700 dark:bg-gray-800 dark:shadow-lg transition-color duration-300"
             onKeyDown={ (e) => e.key === "Enter" && sendMessage() }
           />
           <button
